@@ -7,7 +7,7 @@
         "custom-fields",
         "custom-dropdown"
     ],
-    "version": "1.0.4",
+    "version": "1.0.5",
     "strapi": {
         "name": "custom-searchable-dropdown",
         "description": "Select field from custom searchable dropdown",
