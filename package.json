@@ -7,7 +7,7 @@
         "custom-fields",
         "custom-dropdown"
     ],
-    "version": "1.0.3",
+    "version": "1.0.4",
     "strapi": {
         "name": "custom-searchable-dropdown",
         "description": "Select field from custom searchable dropdown",
@@ -28,6 +28,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/ChrisEbert/strapi-plugin-custom-searchable-dropdown.git"
+        "url": "https://github.com/harshnamdev-angelone/strapi-plugin-custom-searchable-dropdown"
     }
 }
