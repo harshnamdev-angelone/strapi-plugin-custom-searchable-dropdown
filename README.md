@@ -1,6 +1,6 @@
 # Strapi plugin custom-searchable-dropdown
 
-A strapi custom field for selecting any country based on the ISO 3166-1 country code standard.
+A strapi custom field for searching and selecting value/scrip.
 
 ## Installation
 
