@@ -1,0 +1,33 @@
+{
+    "name": "strapi-plugin-custom-searchable-dropdown",
+    "description": "A strapi custom field for searching and selecting any field from dropdown.",
+    "keywords": [
+        "strapi",
+        "strapi-plugin",
+        "custom-fields",
+        "custom-dropdown"
+    ],
+    "version": "1.0.3",
+    "strapi": {
+        "name": "custom-searchable-dropdown",
+        "description": "Select field from custom searchable dropdown",
+        "kind": "plugin",
+        "displayName": "Custom Searchable Dropdown"
+    },
+    "dependencies": {
+        "@strapi/design-system": "^1.16.0"
+    },
+    "author": {
+        "name": "Harsh Namdev",
+        "email": "harsh.namdev@angelbroking.com",
+        "url": "https://www.angelone.in/"
+    },
+    "license": "MIT",
+    "peerDependencies": {
+        "@strapi/strapi": "^4.4.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ChrisEbert/strapi-plugin-custom-searchable-dropdown.git"
+    }
+}
