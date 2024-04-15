@@ -313,14 +313,11 @@ const CustomDropDown = React.forwardRef(
                 ExpDate: entry.ExpDate,
               }));
 
-              console.log("data.len...", data.length);
+              console.log("i: ", i, " data.len: ", data.length);
 
               // for equity segment strike price don't exists
               if (i !== 12) {
                 data = sortByExpDateAndSumbol(data);
-                const endTime = Date.now();
-                const latency = endTime - startTime;
-                console.log("sorting done... latency: ", latency);
               }
 
               // add to cache
@@ -350,7 +347,6 @@ const CustomDropDown = React.forwardRef(
       // is instrument type is present but not 3 chars then reset dropdown
       setNTradeSymbols(["type atleast 3 chars"]);
       if (typedTradeSymbol.length < 3) {
-        console.log("typedTradeSymbol < 3. Returning...");
         return;
       }
       // check if same request combination already processed
