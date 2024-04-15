@@ -331,7 +331,6 @@ const CustomDropDown = React.forwardRef(
               );
             }
           });
-
         } catch (err) {
           console.error("Error fetching data:", err);
         }
@@ -387,6 +386,15 @@ const CustomDropDown = React.forwardRef(
       setTypedTradeSymbol(event.target.value.toLowerCase());
     };
 
+    const handleOnChange = (value) => {
+      onChange({
+        target: {
+          name: name,
+          value: value,
+          type: attribute.type,
+        },
+      });
+    };
     return (
       <Field
         name={name}
@@ -406,15 +414,7 @@ const CustomDropDown = React.forwardRef(
             aria-disabled={disabled}
             disabled={disabled}
             value={value}
-            // onChange={(countryCode) =>
-            //   onChange({
-            //     target: {
-            //       name: name,
-            //       value: countryCode,
-            //       type: attribute.type,
-            //     },
-            //   })
-            // }
+            onChange={(scrip) => handleOnChange(scrip)}
             onKeyUp={handleKeyPress}
             onClear={() => {
               onChange({
