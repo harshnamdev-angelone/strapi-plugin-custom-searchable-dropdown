@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-
+import { fetchData, checkIsFetchingData } from "./fetchData";
+import { getFromLocalStorage } from "./cache";
 import PropTypes from "prop-types";
 import { Combobox, ComboboxOption } from "@strapi/design-system/Combobox";
 import { Stack } from "@strapi/design-system/Stack";
@@ -14,36 +15,6 @@ import {
   useFetchClient,
   useCMEditViewDataManager,
 } from "@strapi/helper-plugin";
-
-// NOTE: do not change this mapping
-const indexToSegmentMapping = {
-  0: "StockOptionPE",
-  1: "StockOptionCE",
-  2: "IndexOptionPE",
-  3: "IndexOptionCE",
-  4: "CommodityOptionPE",
-  5: "CommodityOptionCE",
-  6: "CurrencyOptionPE",
-  7: "CurrencyOptionCE",
-  8: "StockFuture",
-  9: "FutureIndex",
-  10: "CurrencyFuture",
-  11: "FutureCommodity",
-  12: "Equity",
-};
-
-// Initialize an empty Map
-const cacheMap = new Map();
-
-// Add data to the cache
-function addToCache(key, data) {
-  cacheMap.set(key, data);
-}
-
-// Retrieve data from the cache
-function getFromCache(key) {
-  return cacheMap.get(key) || [];
-}
 
 const CustomDropDown = React.forwardRef(
   (
@@ -66,274 +37,25 @@ const CustomDropDown = React.forwardRef(
     const [parsedOptionsNt, setNTradeSymbols] = useState([
       "Type atleast 3 chars",
     ]);
-    let prevStateInstrumentType = "";
-    let prevTypedTradeSymbol = "";
+    var prevStateInstrumentType = "";
+    var prevTypedTradeSymbol = "";
 
     const fetchApi = useFetchClient();
     const { modifiedData } = useCMEditViewDataManager();
 
     useEffect(() => {
       console.log("use effect 1 .. ");
-
-      const fetchData = async () => {
-        try {
-          // Make parallel calls to fetch data
-          const fetchRequestsList = [];
-
-          // 0: Stock Option PE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTSTK",
-                  "filters[$and][1][sOptionType][$eq]": "PE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 1: Stock Option CE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTSTK",
-                  "filters[$and][1][sOptionType][$eq]": "CE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 2: Index Option PE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTIDX",
-                  "filters[$and][1][sOptionType][$eq]": "PE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 3: Index Option CE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTIDX",
-                  "filters[$and][1][sOptionType][$eq]": "CE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 4: Commodity Option PE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTFUT",
-                  "filters[$and][1][sOptionType][$eq]": "PE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 5: Commodity Option CE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTFUT",
-                  "filters[$and][1][sOptionType][$eq]": "CE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 6: Currency Option PE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTCUR",
-                  "filters[$and][1][sOptionType][$eq]": "PE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 7: Currency Option CE
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "OPTCUR",
-                  "filters[$and][1][sOptionType][$eq]": "CE",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 8: Stock Future
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "FUTSTK",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 9: Future Index
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "FUTIDX",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 10: Currency Future
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "FUTCUR",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 11: Future Commodity
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][nInstrumentType][$eq]": "FUTCOM",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          // 12: Equity
-          fetchRequestsList.push(
-            fetchApi.get(
-              "/content-manager/collection-types/api::amx-scrip-master.amx-scrip-master",
-              {
-                params: {
-                  pageSize: 50000,
-                  fields:
-                    "ntradesymbol,sSymbol,nStrikePrice,nInstrumentType,astCls,ExpDate",
-                  "filters[$and][0][astCls][$eq]": "cash",
-                  sort: "ntradesymbol:ASC",
-                },
-              }
-            )
-          );
-
-          const startTime = Date.now();
-          const pageResponses = await Promise.all(fetchRequestsList);
-          const endTime = Date.now();
-          const latency = endTime - startTime;
-          console.log("all promises resolved... latency: ", latency);
-
-          pageResponses.forEach((response, i) => {
-            if (response.data && response.data.results) {
-              let data = response.data.results.map((entry) => ({
-                ntradesymbol: entry.ntradesymbol,
-                sSymbol: entry.sSymbol,
-                nStrikePrice: entry.nStrikePrice,
-                nInstrumentType: entry.nInstrumentType,
-                astCls: entry.astCls,
-                ExpDate: entry.ExpDate,
-              }));
-
-              console.log("i: ", i, " data.len: ", data.length);
-
-              // for equity segment strike price don't exists
-              if (i !== 12) {
-                data = sortByExpDateAndSumbol(data);
-              }
-
-              // add to cache
-              addToCache(indexToSegmentMapping[i], data);
-            } else {
-              console.error(
-                "Error fetching data: Data is not in the expected format"
-              );
-            }
-          });
-        } catch (err) {
-          console.error("Error fetching data:", err);
+      async function fetchDataWrapper() {
+        if (checkIsFetchingData()) {
+          return;
         }
-      };
-
-      fetchData();
+        try {
+          const data = await fetchData(fetchApi);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      fetchDataWrapper();
     }, []);
 
     useEffect(() => {
@@ -358,17 +80,25 @@ const CustomDropDown = React.forwardRef(
       }
 
       // get data array from cache
-      const dataArray = getFromCache(instrument_type);
-      console.log("before filter dataArray len: ", dataArray.length);
-      // for given instrument_type and filter based ntradeSymbol starts with typedTradeSymbol
-      const dataArrayF = dataArray.filter((obj) =>
-        obj.ntradesymbol.toLowerCase().startsWith(typedTradeSymbol)
+      const nTradeSymbolsdataArray = getFromLocalStorage(instrument_type, true);
+      console.log(
+        "before filter nTradeSymbolsdataArray len: ",
+        nTradeSymbolsdataArray.length
       );
-      console.log("after filter datagitArray len: ", dataArrayF.length);
+
+      if (nTradeSymbolsdataArray.length == 0) {
+        // no data in cache it might be expired, load again
+        console.log("use effect 2 calling fetchData()");
+        fetchData(fetchApi);
+      }
+      // for given instrument_type and filter based ntradeSymbol starts with typedTradeSymbol
+      const dataArrayF = nTradeSymbolsdataArray.filter((obj) =>
+        obj.toLowerCase().startsWith(typedTradeSymbol)
+      );
+      console.log("after filter data Array len: ", dataArrayF.length);
 
       if (dataArrayF.length > 0) {
-        // Extract ntradesymbol values from dataArray and Update parsedOptionsNt state
-        setNTradeSymbols(dataArrayF.map((entry) => entry.ntradesymbol));
+        setNTradeSymbols(dataArrayF);
       } else {
         setNTradeSymbols(["no result found"]);
       }
@@ -457,47 +187,5 @@ CustomDropDown.propTypes = {
   required: PropTypes.bool,
   value: PropTypes.string,
 };
-
-function isExpDateUnique(uniqueExpDates, sSymbol, expDate) {
-  // If the sSymbol exists in uniqueExpDates array
-  const expDates = uniqueExpDates[sSymbol].map((obj) => obj.ExpDate);
-  return expDates.includes(expDate);
-}
-
-function sortByExpDateAndSumbol(data) {
-  // Sort the array based on sSymbol
-  data.sort((a, b) => a.sSymbol.localeCompare(b.sSymbol));
-
-  // Create two sub-arrays for objects with duplicate and unique ExpDate values
-  const duplicateExpDates = {};
-  const uniqueExpDates = {};
-
-  data.forEach((obj) => {
-    if (!uniqueExpDates[obj.sSymbol]) {
-      uniqueExpDates[obj.sSymbol] = [];
-      uniqueExpDates[obj.sSymbol].push(obj);
-    } else if (!isExpDateUnique(uniqueExpDates, obj.sSymbol, obj.ExpDate)) {
-      uniqueExpDates[obj.sSymbol].push(obj);
-    } else {
-      if (!duplicateExpDates[obj.sSymbol]) {
-        duplicateExpDates[obj.sSymbol] = [];
-      }
-      duplicateExpDates[obj.sSymbol].push(obj);
-    }
-  });
-
-  const mergedArray = [];
-
-  // Iterate over uniqueExpDates
-  for (const sSymbol in uniqueExpDates) {
-    mergedArray.push(...uniqueExpDates[sSymbol]);
-    if (duplicateExpDates[sSymbol]) {
-      mergedArray.push(...duplicateExpDates[sSymbol]);
-    }
-  }
-
-  console.log("returning sorted data");
-  return mergedArray;
-}
 
 export default CustomDropDown;
