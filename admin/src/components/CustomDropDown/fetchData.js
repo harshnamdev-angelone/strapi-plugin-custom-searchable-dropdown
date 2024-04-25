@@ -112,8 +112,10 @@ async function fetchData(fetchApi) {
     // Get the keys of the indexToSegmentMapping
     const keys = Object.keys(indexToSegmentMapping);
 
+    let index;
     // Loop through indexToSegmentMapping to avoid repetition
-    keys.forEach((index) => {
+    keys.forEach((indexS) => {
+      index = parseInt(indexS);
       switch (parseInt(index)) {
         case 0:
         case 1:
